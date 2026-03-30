@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import "../global.css";
 
@@ -13,11 +13,16 @@ import {
 } from "@expo-google-fonts/dm-sans";
 import * as SplashScreen from "expo-splash-screen";
 import { useAppStore } from "@/store/useAppStore";
+import { supabase } from "@/lib/supabase";
+import AuthScreen from "@/components/auth/AuthScreen";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const darkMode = useAppStore((s) => s.darkMode);
+  const session = useAppStore((s) => s.session);
+  const setSession = useAppStore((s) => s.setSession);
+  const [authLoading, setAuthLoading] = useState(true);
 
   const [fontsLoaded] = useFonts({
     DMSans_400Regular,
@@ -26,12 +31,45 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (fontsLoaded) {
+    // Restore existing session
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        setSession(session);
+      })
+      .catch((err) => {
+        console.error("Failed to get session:", err);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (fontsLoaded && !authLoading) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, authLoading]);
 
-  if (!fontsLoaded) return null;
+  if (!fontsLoaded || authLoading) return null;
+
+  if (!session) {
+    return (
+      <ThemeProvider value={darkMode ? DarkTheme : DefaultTheme}>
+        <AuthScreen />
+        <StatusBar style={darkMode ? "light" : "dark"} />
+      </ThemeProvider>
+    );
+  }
 
   return (
     <ThemeProvider value={darkMode ? DarkTheme : DefaultTheme}>

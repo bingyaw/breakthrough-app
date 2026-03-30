@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { supabase } from "@/lib/supabase";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
@@ -35,7 +36,11 @@ export default function ProfileSheet() {
     toggleInterest,
     likedArticles,
     savedArticles,
+    user,
   } = useAppStore();
+
+  const userEmail = user?.email ?? "user@breakthrough.app";
+  const userInitial = userEmail.charAt(0).toUpperCase();
 
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
@@ -84,10 +89,9 @@ export default function ProfileSheet() {
             {/* Profile header */}
             <View style={styles.profileHeader}>
               <View style={[styles.avatarCircle, { backgroundColor: "#E63329" }]}>
-                <Text style={styles.avatarInitial}>B</Text>
+                <Text style={styles.avatarInitial}>{userInitial}</Text>
               </View>
-              <Text style={[styles.userName, { color: textColor }]}>Breakthrough User</Text>
-              <Text style={[styles.userEmail, { color: mutedText }]}>user@breakthrough.app</Text>
+              <Text style={[styles.userName, { color: textColor }]}>{userEmail}</Text>
             </View>
 
             {/* Stats */}
@@ -165,6 +169,19 @@ export default function ProfileSheet() {
                   <Ionicons name="chevron-forward" size={18} color={mutedText} />
                 </Pressable>
               ))}
+
+              <Pressable
+                style={[styles.menuItem, { backgroundColor: cardBg, marginTop: 8 }]}
+                onPress={async () => {
+                  await supabase.auth.signOut();
+                  close();
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+                  <Ionicons name="log-out-outline" size={20} color="#E63329" />
+                  <Text style={[styles.settingLabel, { color: "#E63329" }]}>Sign Out</Text>
+                </View>
+              </Pressable>
             </View>
           </ScrollView>
         </Animated.View>

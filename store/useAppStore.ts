@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { Article } from "@/data/articles";
+import { Session, User } from "@supabase/supabase-js";
 
 export type Category = "For You" | "Founders" | "Tech" | "Science" | "Space";
 
@@ -13,6 +14,11 @@ interface UserInterests {
 }
 
 interface AppState {
+  // Auth
+  session: Session | null;
+  user: User | null;
+  setSession: (session: Session | null) => void;
+
   darkMode: boolean;
   toggleDarkMode: () => void;
 
@@ -46,6 +52,12 @@ interface AppState {
 }
 
 export const useAppStore = create<AppState>((set) => ({
+  // Auth
+  session: null,
+  user: null,
+  setSession: (session) =>
+    set({ session, user: session?.user ?? null }),
+
   darkMode: false,
   toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
 
