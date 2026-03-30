@@ -42,6 +42,7 @@ interface AppState {
   setFeedLoading: (loading: boolean) => void;
   setFeedError: (error: string | null) => void;
   clearCategoryCache: (category: string) => void;
+  refreshKey: number;
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -100,6 +101,7 @@ export const useAppStore = create<AppState>((set) => ({
     set((s) => {
       const next = { ...s.generatedArticles };
       delete next[category];
-      return { generatedArticles: next };
+      return { generatedArticles: next, refreshKey: s.refreshKey + 1 };
     }),
+  refreshKey: 0,
 }));

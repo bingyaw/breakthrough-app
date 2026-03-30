@@ -32,7 +32,7 @@ export const founderSpotlights: FounderSpotlight[] = [
     name: "Zhang Junjie",
     company: "CHAGEE",
     title: "From $6K to $6B Tea Empire",
-    imageUrl: "https://images.unsplash.com/photo-1556740758-90de374c12ad?w=400&h=500&fit=crop",
+    imageUrl: "https://ui-avatars.com/api/?name=Zhang+Junjie&size=400&background=8B0000&color=fff&font-size=0.33",
     story:
       "Zhang Junjie built CHAGEE from a single tea shop with $6,000 in savings into a $6 billion empire spanning 4,000+ stores across Asia. His obsession with quality ingredients and refusing franchise models for years set CHAGEE apart in China's hyper-competitive tea market.",
   },
@@ -41,7 +41,7 @@ export const founderSpotlights: FounderSpotlight[] = [
     name: "Jack Ma",
     company: "Alibaba",
     title: "Rejected 30 Times, Built a Giant",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop",
+    imageUrl: "https://ui-avatars.com/api/?name=Jack+Ma&size=400&background=1a237e&color=fff&font-size=0.33",
     story:
       "Jack Ma was rejected from 30 jobs, including KFC. He failed his college entrance exam twice. He started Alibaba in his apartment with 17 friends, growing it into one of the world's largest e-commerce platforms worth over $200 billion.",
   },
@@ -50,7 +50,7 @@ export const founderSpotlights: FounderSpotlight[] = [
     name: "Ritesh Agarwal",
     company: "OYO Rooms",
     title: "Teen Dropout to Hotel Mogul",
-    imageUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=500&fit=crop",
+    imageUrl: "https://ui-avatars.com/api/?name=Ritesh+Agarwal&size=400&background=1b5e20&color=fff&font-size=0.33",
     story:
       "Ritesh Agarwal dropped out of college at 17, joined the Thiel Fellowship, and built OYO Rooms into the world's third-largest hotel chain. Starting with a single hotel in Gurgaon, he scaled to 43 countries by age 26.",
   },
@@ -59,7 +59,7 @@ export const founderSpotlights: FounderSpotlight[] = [
     name: "Dian Siswarini",
     company: "XL Axiata",
     title: "Breaking Barriers in Telecom",
-    imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=500&fit=crop",
+    imageUrl: "https://ui-avatars.com/api/?name=Dian+Siswarini&size=400&background=4a148c&color=fff&font-size=0.33",
     story:
       "Dian Siswarini became the first female CEO of a major Indonesian telecom company when she took the helm of XL Axiata. She led a massive digital transformation, pivoting from voice to data services and expanding 4G coverage across 500+ cities.",
   },

@@ -15,6 +15,7 @@ export default function MasonryFeed() {
   const feedLoading = useAppStore((s) => s.feedLoading);
   const setGeneratedArticles = useAppStore((s) => s.setGeneratedArticles);
   const setFeedLoading = useAppStore((s) => s.setFeedLoading);
+  const refreshKey = useAppStore((s) => s.refreshKey);
   const setFeedError = useAppStore((s) => s.setFeedError);
 
   const fetchArticles = useCallback(async () => {
@@ -35,7 +36,7 @@ export default function MasonryFeed() {
 
   useEffect(() => {
     fetchArticles();
-  }, [activeCategory]);
+  }, [activeCategory, refreshKey]);
 
   if (feedLoading && !generatedArticles[activeCategory]) {
     return <SkeletonFeed />;
