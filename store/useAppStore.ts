@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { Article } from "@/data/articles";
 import { Session, User } from "@supabase/supabase-js";
+import {
+  fetchSavedArticleIds,
+  addSaveToDb,
+  removeSaveFromDb,
+} from "@/lib/savedArticles";
 
 export type Category = "For You" | "Founders" | "Tech" | "Science" | "Space";
 
@@ -30,6 +35,7 @@ interface AppState {
 
   savedArticles: Set<string>;
   toggleSave: (id: string) => void;
+  loadSavedArticles: () => Promise<void>;
 
   selectedArticleId: string | null;
   setSelectedArticle: (id: string | null) => void;
@@ -51,7 +57,7 @@ interface AppState {
   refreshKey: number;
 }
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   // Auth
   session: null,
   user: null,
@@ -73,12 +79,29 @@ export const useAppStore = create<AppState>((set) => ({
     }),
 
   savedArticles: new Set(),
-  toggleSave: (id) =>
-    set((s) => {
-      const next = new Set(s.savedArticles);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return { savedArticles: next };
-    }),
+  toggleSave: (id) => {
+    const { user, savedArticles } = get();
+    const wasSaved = savedArticles.has(id);
+    const next = new Set(savedArticles);
+    wasSaved ? next.delete(id) : next.add(id);
+    set({ savedArticles: next });
+
+    // Sync to Supabase in background
+    if (user) {
+      if (wasSaved) {
+        removeSaveFromDb(user.id, id);
+      } else {
+        addSaveToDb(user.id, id);
+      }
+    }
+  },
+
+  loadSavedArticles: async () => {
+    const { user } = get();
+    if (!user) return;
+    const ids = await fetchSavedArticleIds(user.id);
+    set({ savedArticles: new Set(ids) });
+  },
 
   selectedArticleId: null,
   setSelectedArticle: (id) => set({ selectedArticleId: id }),

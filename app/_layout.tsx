@@ -22,6 +22,7 @@ export default function RootLayout() {
   const darkMode = useAppStore((s) => s.darkMode);
   const session = useAppStore((s) => s.session);
   const setSession = useAppStore((s) => s.setSession);
+  const loadSavedArticles = useAppStore((s) => s.loadSavedArticles);
   const [authLoading, setAuthLoading] = useState(true);
 
   const [fontsLoaded] = useFonts({
@@ -53,6 +54,13 @@ export default function RootLayout() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  // Load saved articles from Supabase when user signs in
+  useEffect(() => {
+    if (session?.user) {
+      loadSavedArticles();
+    }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (fontsLoaded && !authLoading) {

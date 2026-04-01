@@ -10,8 +10,12 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import * as WebBrowser from "expo-web-browser";
+import { makeRedirectUri } from "expo-auth-session";
 import { useAppStore } from "@/store/useAppStore";
 import { supabase } from "@/lib/supabase";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function AuthScreen() {
   const darkMode = useAppStore((s) => s.darkMode);
@@ -19,6 +23,7 @@ export default function AuthScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -26,7 +31,8 @@ export default function AuthScreen() {
   const textColor = darkMode ? "#F5F5F5" : "#1A1A1A";
   const mutedText = darkMode ? "#AAA" : "#666";
   const inputBg = darkMode ? "#2A2A2A" : "#FFFFFF";
-  const inputBorder = darkMode ? "#444" : "#DDD";
+  const inputBorder = darkMode ? "#444" : "#E5E0DA";
+  const tabInactiveBg = darkMode ? "#2A2A2A" : "#EDE9E3";
 
   async function handleAuth() {
     if (!email || !password) {
@@ -58,6 +64,57 @@ export default function AuthScreen() {
     setLoading(false);
   }
 
+  async function handleGoogleSignIn() {
+    setGoogleLoading(true);
+    setError(null);
+    setMessage(null);
+
+    try {
+      const redirectTo = makeRedirectUri();
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setGoogleLoading(false);
+        return;
+      }
+
+      if (data?.url) {
+        const result = await WebBrowser.openAuthSessionAsync(
+          data.url,
+          redirectTo
+        );
+
+        if (result.type === "success" && result.url) {
+          const url = new URL(result.url);
+          // Tokens can be in hash fragment or query params
+          const fragment = url.hash.substring(1);
+          const params = new URLSearchParams(fragment || url.search);
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+
+          if (accessToken && refreshToken) {
+            await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+          }
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || "Google sign-in failed");
+    }
+
+    setGoogleLoading(false);
+  }
+
   return (
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: bg }]}
@@ -67,16 +124,68 @@ export default function AuthScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Logo */}
         <View style={styles.logoSection}>
           <View style={styles.logoCircle}>
             <Text style={styles.logoText}>B</Text>
           </View>
-          <Text style={[styles.title, { color: textColor }]}>Breakthrough</Text>
-          <Text style={[styles.subtitle, { color: mutedText }]}>
-            {isSignUp ? "Create your account" : "Welcome back"}
+          <Text style={[styles.brandName, { color: textColor }]}>
+            Breakthrough
+          </Text>
+          <Text style={[styles.tagline, { color: mutedText }]}>
+            Discover what matters
           </Text>
         </View>
 
+        {/* Login / Sign Up Toggle */}
+        <View style={[styles.tabContainer, { backgroundColor: tabInactiveBg }]}>
+          <Pressable
+            style={[
+              styles.tab,
+              !isSignUp && styles.tabActive,
+              !isSignUp && { backgroundColor: inputBg },
+            ]}
+            onPress={() => {
+              setIsSignUp(false);
+              setError(null);
+              setMessage(null);
+            }}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                { color: !isSignUp ? textColor : mutedText },
+                !isSignUp && styles.tabTextActive,
+              ]}
+            >
+              Log In
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.tab,
+              isSignUp && styles.tabActive,
+              isSignUp && { backgroundColor: inputBg },
+            ]}
+            onPress={() => {
+              setIsSignUp(true);
+              setError(null);
+              setMessage(null);
+            }}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                { color: isSignUp ? textColor : mutedText },
+                isSignUp && styles.tabTextActive,
+              ]}
+            >
+              Sign Up
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Form */}
         <View style={styles.form}>
           {error && (
             <View style={styles.errorBox}>
@@ -90,7 +199,6 @@ export default function AuthScreen() {
             </View>
           )}
 
-          <Text style={[styles.label, { color: mutedText }]}>Email</Text>
           <TextInput
             style={[
               styles.input,
@@ -102,14 +210,13 @@ export default function AuthScreen() {
             ]}
             value={email}
             onChangeText={setEmail}
-            placeholder="you@example.com"
+            placeholder="Email address"
             placeholderTextColor={mutedText}
             autoCapitalize="none"
             keyboardType="email-address"
             autoCorrect={false}
           />
 
-          <Text style={[styles.label, { color: mutedText }]}>Password</Text>
           <TextInput
             style={[
               styles.input,
@@ -121,41 +228,55 @@ export default function AuthScreen() {
             ]}
             value={password}
             onChangeText={setPassword}
-            placeholder="Your password"
+            placeholder="Password"
             placeholderTextColor={mutedText}
             secureTextEntry
           />
 
           <Pressable
-            style={[styles.button, loading && styles.buttonDisabled]}
+            style={[styles.primaryButton, loading && styles.buttonDisabled]}
             onPress={handleAuth}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={styles.buttonText}>
-                {isSignUp ? "Sign Up" : "Log In"}
+              <Text style={styles.primaryButtonText}>
+                {isSignUp ? "Create Account" : "Log In"}
               </Text>
             )}
           </Pressable>
 
+          {/* Divider */}
+          <View style={styles.dividerRow}>
+            <View style={[styles.dividerLine, { backgroundColor: inputBorder }]} />
+            <Text style={[styles.dividerText, { color: mutedText }]}>or</Text>
+            <View style={[styles.dividerLine, { backgroundColor: inputBorder }]} />
+          </View>
+
+          {/* Google Sign In */}
           <Pressable
-            style={styles.switchMode}
-            onPress={() => {
-              setIsSignUp(!isSignUp);
-              setError(null);
-              setMessage(null);
-            }}
+            style={[
+              styles.googleButton,
+              {
+                backgroundColor: inputBg,
+                borderColor: inputBorder,
+              },
+              googleLoading && styles.buttonDisabled,
+            ]}
+            onPress={handleGoogleSignIn}
+            disabled={googleLoading}
           >
-            <Text style={[styles.switchText, { color: mutedText }]}>
-              {isSignUp
-                ? "Already have an account? "
-                : "Don't have an account? "}
-              <Text style={{ color: "#E63329", fontFamily: "DMSans_700Bold" }}>
-                {isSignUp ? "Log In" : "Sign Up"}
-              </Text>
-            </Text>
+            {googleLoading ? (
+              <ActivityIndicator color={mutedText} />
+            ) : (
+              <>
+                <Text style={styles.googleIcon}>G</Text>
+                <Text style={[styles.googleButtonText, { color: textColor }]}>
+                  Continue with Google
+                </Text>
+              </>
+            )}
           </Pressable>
         </View>
       </ScrollView>
@@ -170,81 +291,135 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
-    paddingHorizontal: 32,
+    paddingHorizontal: 28,
     paddingVertical: 48,
   },
   logoSection: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 36,
   },
   logoCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: "#E63329",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 14,
+    shadowColor: "#E63329",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 6,
   },
   logoText: {
     color: "#FFF",
-    fontSize: 36,
+    fontSize: 32,
     fontFamily: "DMSans_700Bold",
   },
-  title: {
-    fontSize: 28,
+  brandName: {
+    fontSize: 26,
     fontFamily: "DMSans_700Bold",
+    letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 15,
+  tagline: {
+    fontSize: 14,
     fontFamily: "DMSans_400Regular",
-    marginTop: 6,
+    marginTop: 4,
+  },
+  tabContainer: {
+    flexDirection: "row",
+    borderRadius: 14,
+    padding: 4,
+    marginBottom: 24,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: "center",
+    borderRadius: 11,
+  },
+  tabActive: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  tabText: {
+    fontSize: 15,
+    fontFamily: "DMSans_500Medium",
+  },
+  tabTextActive: {
+    fontFamily: "DMSans_700Bold",
   },
   form: {
-    gap: 4,
-  },
-  label: {
-    fontSize: 13,
-    fontFamily: "DMSans_500Medium",
-    marginBottom: 6,
-    marginTop: 12,
+    gap: 12,
   },
   input: {
     borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 14,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     fontSize: 15,
     fontFamily: "DMSans_400Regular",
   },
-  button: {
+  primaryButton: {
     backgroundColor: "#E63329",
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
-    marginTop: 24,
+    marginTop: 4,
+    shadowColor: "#E63329",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
-  buttonText: {
+  primaryButtonText: {
     color: "#FFF",
     fontSize: 16,
     fontFamily: "DMSans_700Bold",
   },
-  switchMode: {
+  dividerRow: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
+    marginVertical: 4,
   },
-  switchText: {
-    fontSize: 14,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 13,
     fontFamily: "DMSans_400Regular",
+  },
+  googleButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingVertical: 15,
+    gap: 10,
+  },
+  googleIcon: {
+    fontSize: 18,
+    fontFamily: "DMSans_700Bold",
+    color: "#4285F4",
+  },
+  googleButtonText: {
+    fontSize: 15,
+    fontFamily: "DMSans_500Medium",
   },
   errorBox: {
     backgroundColor: "#FEE2E2",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
+    borderRadius: 12,
+    padding: 14,
   },
   errorText: {
     color: "#DC2626",
@@ -253,9 +428,8 @@ const styles = StyleSheet.create({
   },
   messageBox: {
     backgroundColor: "#DCFCE7",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 8,
+    borderRadius: 12,
+    padding: 14,
   },
   messageText: {
     color: "#16A34A",
