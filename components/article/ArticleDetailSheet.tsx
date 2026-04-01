@@ -10,6 +10,7 @@ import {
   Animated,
   PanResponder,
   Modal,
+  Share,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -114,6 +115,18 @@ export default function ArticleDetailSheet() {
     setHeroLoadError(false);
   }, [selectedArticleId]);
 
+  const handleShare = async () => {
+    if (!article) return;
+    const snippet = article.body.length > 120
+      ? article.body.slice(0, 120).trimEnd() + "…"
+      : article.body;
+    try {
+      await Share.share({
+        message: `🔥 ${article.title}\n\n${snippet}\n\nDiscover more on Breakthrough`,
+      });
+    } catch (_) {}
+  };
+
   if (!article) return null;
 
   const bg = darkMode ? "#1A1A1A" : "#FFFFFF";
@@ -142,11 +155,17 @@ export default function ArticleDetailSheet() {
           ]}
           {...panResponder.panHandlers}
         >
-          {/* Drag handle */}
+          {/* Header with drag handle, close & share */}
           <View style={styles.handleBar}>
+            <Pressable onPress={close} style={styles.headerButton}>
+              <Ionicons name="close" size={22} color={darkMode ? "#FFF" : "#333"} />
+            </Pressable>
             <View
               style={[styles.handle, { backgroundColor: darkMode ? "#555" : "#DDD" }]}
             />
+            <Pressable onPress={handleShare} style={styles.headerButton}>
+              <Ionicons name="share-outline" size={20} color={darkMode ? "#FFF" : "#333"} />
+            </Pressable>
           </View>
 
           <ScrollView
@@ -290,6 +309,7 @@ export default function ArticleDetailSheet() {
                 </Pressable>
 
                 <Pressable
+                  onPress={handleShare}
                   style={[
                     styles.actionButton,
                     { backgroundColor: darkMode ? "#333" : "#F5F5F5" },
@@ -378,8 +398,18 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   handleBar: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    justifyContent: "space-between",
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+  },
+  headerButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
   handle: {
     width: 40,
