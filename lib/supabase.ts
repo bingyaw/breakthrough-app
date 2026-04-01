@@ -1,12 +1,23 @@
 import { createClient } from "@supabase/supabase-js";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const supabaseUrl = "https://zrsmhmuwjfghzgqglzab.supabase.co";
 const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpyc21obXV3amZnaHpncWdsemFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NDQ0OTcsImV4cCI6MjA5MDQyMDQ5N30.5rhSuzgE0zOEBy7bHy09Zh17vZa3v1X-Y9P2vEpW0UU";
 
+const memoryStorage = new Map<string, string>();
+
+const inMemoryStorage = {
+  getItem: (key: string) => memoryStorage.get(key) ?? null,
+  setItem: (key: string, value: string) => {
+    memoryStorage.set(key, value);
+  },
+  removeItem: (key: string) => {
+    memoryStorage.delete(key);
+  },
+};
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: inMemoryStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
