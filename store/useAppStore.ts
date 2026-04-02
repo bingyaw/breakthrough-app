@@ -46,6 +46,10 @@ interface AppState {
   interests: UserInterests;
   toggleInterest: (key: keyof UserInterests) => void;
 
+  // Onboarding
+  hasSeenOnboarding: boolean;
+  setHasSeenOnboarding: (v: boolean) => void;
+
   // AI-generated feed
   generatedArticles: Record<string, Article[]>;
   feedLoading: boolean;
@@ -121,6 +125,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((s) => ({
       interests: { ...s.interests, [key]: !s.interests[key] },
     })),
+
+  // Onboarding
+  hasSeenOnboarding: false,
+  setHasSeenOnboarding: (v) => set({ hasSeenOnboarding: v }),
 
   // AI-generated feed
   generatedArticles: {},

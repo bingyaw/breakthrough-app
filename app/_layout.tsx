@@ -15,6 +15,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useAppStore } from "@/store/useAppStore";
 import { supabase } from "@/lib/supabase";
 import AuthScreen from "@/components/auth/AuthScreen";
+import OnboardingScreen from "@/components/onboarding/OnboardingScreen";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +24,7 @@ export default function RootLayout() {
   const session = useAppStore((s) => s.session);
   const setSession = useAppStore((s) => s.setSession);
   const loadSavedArticles = useAppStore((s) => s.loadSavedArticles);
+  const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
   const [authLoading, setAuthLoading] = useState(true);
 
   const [fontsLoaded] = useFonts({
@@ -75,6 +77,15 @@ export default function RootLayout() {
       <ThemeProvider value={darkMode ? DarkTheme : DefaultTheme}>
         <AuthScreen />
         <StatusBar style={darkMode ? "light" : "dark"} />
+      </ThemeProvider>
+    );
+  }
+
+  if (!hasSeenOnboarding) {
+    return (
+      <ThemeProvider value={darkMode ? DarkTheme : DefaultTheme}>
+        <OnboardingScreen />
+        <StatusBar style="light" />
       </ThemeProvider>
     );
   }
