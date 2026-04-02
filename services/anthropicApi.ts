@@ -27,14 +27,32 @@ Respond ONLY with a valid JSON array. No markdown, no code fences, no explanatio
 - "isTrending": boolean, true for 1-2 different articles
 - "badge": short label like "AI", "Space", "Biotech", "Startup", etc.`;
 
-function buildUserPrompt(category: string): string {
+export interface UserInterests {
+  founders: boolean;
+  tech: boolean;
+  science: boolean;
+  space: boolean;
+  ai: boolean;
+  startups: boolean;
+}
+
+function buildUserPrompt(category: string, interests?: UserInterests): string {
   if (category === "For You") {
-    return `Generate 6 breakthrough articles spanning Tech, Science, Space, and Founders categories. Mix the categories evenly. Make each article feel fresh and current, covering the latest innovations and discoveries.`;
+    const activeTopics = interests
+      ? Object.entries(interests)
+          .filter(([, enabled]) => enabled)
+          .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1))
+      : [];
+
+    if (activeTopics.length > 0) {
+      return `Generate 6 breakthrough articles personalized to the user's interests: ${activeTopics.join(", ")}. Distribute articles across these topics, weighting toward topics the user cares about most. Make each article feel fresh and current, covering the latest innovations and discoveries in these areas.`;
+    }
+    return `Generate 6 breakthrough articles spanning Tech, Science, Space, AI, and Founders categories. Mix the categories evenly. Make each article feel fresh and current, covering the latest innovations and discoveries.`;
   }
   return `Generate 6 breakthrough articles in the "${category}" category. Each should cover a different topic within ${category}. Make them feel fresh, current, and inspiring — covering the latest innovations, discoveries, and stories.`;
 }
 
-export async function generateArticles(category: string): Promise<Article[]> {
+export async function generateArticles(category: string, interests?: UserInterests): Promise<Article[]> {
   const apiKey = getApiKey();
 
   const response = await fetch(API_URL, {
@@ -52,7 +70,7 @@ export async function generateArticles(category: string): Promise<Article[]> {
       messages: [
         {
           role: "user",
-          content: buildUserPrompt(category),
+          content: buildUserPrompt(category, interests),
         },
       ],
     }),

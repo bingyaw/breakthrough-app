@@ -17,6 +17,20 @@ export default function MasonryFeed() {
   const setFeedLoading = useAppStore((s) => s.setFeedLoading);
   const refreshKey = useAppStore((s) => s.refreshKey);
   const setFeedError = useAppStore((s) => s.setFeedError);
+  const interests = useAppStore((s) => s.interests);
+  const clearCategoryCache = useAppStore((s) => s.clearCategoryCache);
+
+  // Track interests to invalidate "For You" cache when they change
+  const interestsKey = JSON.stringify(interests);
+  const prevInterestsKey = React.useRef(interestsKey);
+  useEffect(() => {
+    if (prevInterestsKey.current !== interestsKey) {
+      prevInterestsKey.current = interestsKey;
+      if (generatedArticles["For You"]) {
+        clearCategoryCache("For You");
+      }
+    }
+  }, [interestsKey]);
 
   const fetchArticles = useCallback(async () => {
     if (generatedArticles[activeCategory]) return;
@@ -24,7 +38,8 @@ export default function MasonryFeed() {
     setFeedLoading(true);
     setFeedError(null);
     try {
-      const articles = await generateArticles(activeCategory);
+      const userInterests = activeCategory === "For You" ? interests : undefined;
+      const articles = await generateArticles(activeCategory, userInterests);
       setGeneratedArticles(activeCategory, articles);
     } catch (err: any) {
       console.warn("Failed to generate articles, falling back to static:", err.message);
@@ -32,7 +47,7 @@ export default function MasonryFeed() {
     } finally {
       setFeedLoading(false);
     }
-  }, [activeCategory, generatedArticles]);
+  }, [activeCategory, generatedArticles, interests]);
 
   useEffect(() => {
     fetchArticles();

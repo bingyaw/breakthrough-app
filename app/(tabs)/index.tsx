@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,11 +9,13 @@ import MasonryFeed from "@/components/feed/MasonryFeed";
 import FounderSpotlightSection from "@/components/feed/FounderSpotlightSection";
 import ArticleDetailSheet from "@/components/article/ArticleDetailSheet";
 import ProfileSheet from "@/components/profile/ProfileSheet";
+import SearchModal from "@/components/SearchModal";
 
 export default function HomeScreen() {
   const { darkMode, setProfileVisible, activeCategory, clearCategoryCache, feedLoading } =
     useAppStore();
   const insets = useSafeAreaInsets();
+  const [searchVisible, setSearchVisible] = useState(false);
 
   const bg = darkMode ? "#1A1A1A" : "#F7F4EF";
   const textColor = darkMode ? "#F5F5F5" : "#1A1A1A";
@@ -43,7 +45,10 @@ export default function HomeScreen() {
               <Ionicons name="refresh" size={20} color="#E63329" />
             )}
           </Pressable>
-          <Pressable style={[styles.iconBtn, { backgroundColor: darkMode ? "#2A2A2A" : "#FFF" }]}>
+          <Pressable
+            onPress={() => setSearchVisible(true)}
+            style={[styles.iconBtn, { backgroundColor: darkMode ? "#2A2A2A" : "#FFF" }]}
+          >
             <Ionicons name="search" size={20} color={textColor} />
           </Pressable>
           <Pressable
@@ -75,6 +80,9 @@ export default function HomeScreen() {
 
       {/* Article Detail Bottom Sheet */}
       <ArticleDetailSheet />
+
+      {/* Search Modal */}
+      <SearchModal visible={searchVisible} onClose={() => setSearchVisible(false)} />
 
       {/* Profile Sheet */}
       <ProfileSheet />
