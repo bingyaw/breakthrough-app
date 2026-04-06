@@ -39,7 +39,7 @@ export default function ProfileSheet() {
     user,
   } = useAppStore();
 
-  const userEmail = user?.email ?? "user@breakthrough.app";
+  const userEmail = user?.email ?? "user@spark.app";
   const userInitial = userEmail.charAt(0).toUpperCase();
 
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;

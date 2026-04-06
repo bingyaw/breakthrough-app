@@ -10,7 +10,7 @@ function getApiKey(): string {
   return key;
 }
 
-const SYSTEM_PROMPT = `You are a content generator for "Breakthrough", an inspiring news app about innovation. Generate exactly 6 unique, compelling articles. Each article must feel authentic — like real journalism about real breakthroughs.
+const SYSTEM_PROMPT = `You are a content generator for "Spark", an inspiring news app about innovation. Generate exactly 6 unique, compelling articles. Each article must feel authentic — like real journalism about real breakthroughs.
 
 Respond ONLY with a valid JSON array. No markdown, no code fences, no explanation. Each object must have:
 - "title": catchy headline (8-14 words)
@@ -45,11 +45,11 @@ function buildUserPrompt(category: string, interests?: UserInterests): string {
       : [];
 
     if (activeTopics.length > 0) {
-      return `Generate 6 breakthrough articles personalized to the user's interests: ${activeTopics.join(", ")}. Distribute articles across these topics, weighting toward topics the user cares about most. Make each article feel fresh and current, covering the latest innovations and discoveries in these areas.`;
+      return `Generate 6 inspiring articles personalized to the user's interests: ${activeTopics.join(", ")}. Distribute articles across these topics, weighting toward topics the user cares about most. Make each article feel fresh and current, covering the latest innovations and discoveries in these areas.`;
     }
-    return `Generate 6 breakthrough articles spanning Tech, Science, Space, AI, and Founders categories. Mix the categories evenly. Make each article feel fresh and current, covering the latest innovations and discoveries.`;
+    return `Generate 6 inspiring articles spanning Tech, Science, Space, AI, and Founders categories. Mix the categories evenly. Make each article feel fresh and current, covering the latest innovations and discoveries.`;
   }
-  return `Generate 6 breakthrough articles in the "${category}" category. Each should cover a different topic within ${category}. Make them feel fresh, current, and inspiring — covering the latest innovations, discoveries, and stories.`;
+  return `Generate 6 inspiring articles in the "${category}" category. Each should cover a different topic within ${category}. Make them feel fresh, current, and inspiring — covering the latest innovations, discoveries, and stories.`;
 }
 
 export async function generateArticles(category: string, interests?: UserInterests): Promise<Article[]> {

@@ -122,7 +122,7 @@ export default function ArticleDetailSheet() {
       : article.body;
     try {
       await Share.share({
-        message: `🔥 ${article.title}\n\n${snippet}\n\nDiscover more on Breakthrough`,
+        message: `🔥 ${article.title}\n\n${snippet}\n\nDiscover more on Spark`,
       });
     } catch (_) {}
   };

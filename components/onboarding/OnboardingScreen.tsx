@@ -27,7 +27,7 @@ const slides: Slide[] = [
     id: "1",
     title: "Discover What's Next",
     subtitle:
-      "AI-curated breakthrough stories from science, tech and founders",
+      "AI-curated stories from science, tech and founders",
     icon: "flash",
     gradientColors: ["#E63329", "#B8281F", "#8C1D17"],
   },
@@ -76,7 +76,7 @@ export default function OnboardingScreen() {
       <View style={styles.content}>
         {index === 0 ? (
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>B</Text>
+            <Text style={styles.logoText}>S</Text>
           </View>
         ) : (
           <View style={styles.iconContainer}>

@@ -29,9 +29,9 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View>
-          <Text style={[styles.logo, { color: "#E63329" }]}>Breakthrough</Text>
+          <Text style={[styles.logo, { color: "#E63329" }]}>Spark</Text>
           <Text style={[styles.tagline, { color: darkMode ? "#888" : "#999" }]}>
-            Discover what's next
+            Ignite your curiosity
           </Text>
         </View>
         <View style={styles.headerActions}>

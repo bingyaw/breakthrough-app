@@ -127,13 +127,13 @@ export default function AuthScreen() {
         {/* Logo */}
         <View style={styles.logoSection}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoText}>B</Text>
+            <Text style={styles.logoText}>S</Text>
           </View>
           <Text style={[styles.brandName, { color: textColor }]}>
-            Breakthrough
+            Spark
           </Text>
           <Text style={[styles.tagline, { color: mutedText }]}>
-            Discover what matters
+            Ignite your curiosity
           </Text>
         </View>
 
