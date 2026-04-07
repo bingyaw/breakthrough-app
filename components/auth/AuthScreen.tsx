@@ -14,11 +14,14 @@ import * as WebBrowser from "expo-web-browser";
 import { makeRedirectUri } from "expo-auth-session";
 import { useAppStore } from "@/store/useAppStore";
 import { supabase } from "@/lib/supabase";
+import { t } from "@/lib/i18n";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function AuthScreen() {
   const darkMode = useAppStore((s) => s.darkMode);
+  const language = useAppStore((s) => s.language);
+  const i18n = t(language);
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +39,7 @@ export default function AuthScreen() {
 
   async function handleAuth() {
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError(i18n.emailPasswordRequired);
       return;
     }
 
@@ -49,7 +52,7 @@ export default function AuthScreen() {
       if (error) {
         setError(error.message);
       } else {
-        setMessage("Check your email to confirm your account!");
+        setMessage(i18n.checkEmailConfirm);
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -133,7 +136,7 @@ export default function AuthScreen() {
             Spark
           </Text>
           <Text style={[styles.tagline, { color: mutedText }]}>
-            Ignite your curiosity
+            {i18n.authTagline}
           </Text>
         </View>
 
@@ -158,7 +161,7 @@ export default function AuthScreen() {
                 !isSignUp && styles.tabTextActive,
               ]}
             >
-              Log In
+              {i18n.logIn}
             </Text>
           </Pressable>
           <Pressable
@@ -180,7 +183,7 @@ export default function AuthScreen() {
                 isSignUp && styles.tabTextActive,
               ]}
             >
-              Sign Up
+              {i18n.signUp}
             </Text>
           </Pressable>
         </View>
@@ -210,7 +213,7 @@ export default function AuthScreen() {
             ]}
             value={email}
             onChangeText={setEmail}
-            placeholder="Email address"
+            placeholder={i18n.emailPlaceholder}
             placeholderTextColor={mutedText}
             autoCapitalize="none"
             keyboardType="email-address"
@@ -228,7 +231,7 @@ export default function AuthScreen() {
             ]}
             value={password}
             onChangeText={setPassword}
-            placeholder="Password"
+            placeholder={i18n.passwordPlaceholder}
             placeholderTextColor={mutedText}
             secureTextEntry
           />
@@ -242,7 +245,7 @@ export default function AuthScreen() {
               <ActivityIndicator color="#FFF" />
             ) : (
               <Text style={styles.primaryButtonText}>
-                {isSignUp ? "Create Account" : "Log In"}
+                {isSignUp ? i18n.createAccount : i18n.logIn}
               </Text>
             )}
           </Pressable>
@@ -250,7 +253,7 @@ export default function AuthScreen() {
           {/* Divider */}
           <View style={styles.dividerRow}>
             <View style={[styles.dividerLine, { backgroundColor: inputBorder }]} />
-            <Text style={[styles.dividerText, { color: mutedText }]}>or</Text>
+            <Text style={[styles.dividerText, { color: mutedText }]}>{i18n.or}</Text>
             <View style={[styles.dividerLine, { backgroundColor: inputBorder }]} />
           </View>
 
@@ -273,7 +276,7 @@ export default function AuthScreen() {
               <>
                 <Text style={styles.googleIcon}>G</Text>
                 <Text style={[styles.googleButtonText, { color: textColor }]}>
-                  Continue with Google
+                  {i18n.continueWithGoogle}
                 </Text>
               </>
             )}

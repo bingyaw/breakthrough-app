@@ -3,11 +3,13 @@ import { View, Text, ScrollView, Pressable, Image, StyleSheet } from "react-nati
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import { articles } from "@/data/articles";
 import ArticleDetailSheet from "@/components/article/ArticleDetailSheet";
 
 export default function SavedScreen() {
-  const { darkMode, savedArticles, setSelectedArticle, generatedArticles } = useAppStore();
+  const { darkMode, savedArticles, setSelectedArticle, generatedArticles, language } = useAppStore();
+  const i18n = t(language);
   const insets = useSafeAreaInsets();
 
   const bg = darkMode ? "#1A1A1A" : "#F7F4EF";
@@ -24,9 +26,9 @@ export default function SavedScreen() {
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Text style={[styles.title, { color: textColor }]}>Saved</Text>
+        <Text style={[styles.title, { color: textColor }]}>{i18n.savedTitle}</Text>
         <Text style={[styles.count, { color: mutedText }]}>
-          {savedList.length} article{savedList.length !== 1 ? "s" : ""}
+          {savedList.length} {savedList.length !== 1 ? i18n.articles : i18n.article}
         </Text>
       </View>
 
@@ -34,9 +36,9 @@ export default function SavedScreen() {
         {savedList.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="bookmark-outline" size={64} color={darkMode ? "#444" : "#DDD"} />
-            <Text style={[styles.emptyTitle, { color: textColor }]}>No saved articles yet</Text>
+            <Text style={[styles.emptyTitle, { color: textColor }]}>{i18n.noSavedArticles}</Text>
             <Text style={[styles.emptySubtitle, { color: mutedText }]}>
-              Tap the bookmark icon on any article to save it here
+              {i18n.tapBookmarkHint}
             </Text>
           </View>
         ) : (

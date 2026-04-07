@@ -1,11 +1,21 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
 import { useAppStore, Category } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 
 const categories: Category[] = ["For You", "Founders", "Tech", "Science", "Space"];
 
+const categoryTranslationKeys: Record<Category, keyof ReturnType<typeof t>> = {
+  "For You": "forYou",
+  Founders: "founders",
+  Tech: "tech",
+  Science: "science",
+  Space: "space",
+};
+
 export default function CategoryTabs() {
-  const { activeCategory, setActiveCategory, darkMode } = useAppStore();
+  const { activeCategory, setActiveCategory, darkMode, language } = useAppStore();
+  const i18n = t(language);
 
   return (
     <ScrollView
@@ -43,7 +53,7 @@ export default function CategoryTabs() {
                 },
               ]}
             >
-              {cat}
+              {i18n[categoryTranslationKeys[cat]]}
             </Text>
           </Pressable>
         );

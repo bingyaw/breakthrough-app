@@ -14,16 +14,17 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
 import { supabase } from "@/lib/supabase";
+import { t, Language, languageLabels } from "@/lib/i18n";
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 
-const interestLabels: Record<string, { label: string; icon: string }> = {
-  founders: { label: "Founders & CEOs", icon: "people" },
-  tech: { label: "Technology", icon: "hardware-chip" },
-  science: { label: "Science", icon: "flask" },
-  space: { label: "Space & Cosmos", icon: "planet" },
-  ai: { label: "AI & Machine Learning", icon: "sparkles" },
-  startups: { label: "Startups & VC", icon: "rocket" },
+const interestIcons: Record<string, string> = {
+  founders: "people",
+  tech: "hardware-chip",
+  science: "flask",
+  space: "planet",
+  ai: "sparkles",
+  startups: "rocket",
 };
 
 export default function ProfileSheet() {
@@ -37,7 +38,22 @@ export default function ProfileSheet() {
     likedArticles,
     savedArticles,
     user,
+    language,
+    setLanguage,
   } = useAppStore();
+
+  const i18n = t(language);
+
+  const interestLabelMap: Record<string, string> = {
+    founders: i18n.foundersCEOs,
+    tech: i18n.technology,
+    science: i18n.scienceLabel,
+    space: i18n.spaceCosmos,
+    ai: i18n.aiMl,
+    startups: i18n.startupsVc,
+  };
+
+  const languages: Language[] = ["en", "zh", "ms"];
 
   const userEmail = user?.email ?? "user@spark.app";
   const userInitial = userEmail.charAt(0).toUpperCase();
@@ -101,25 +117,25 @@ export default function ProfileSheet() {
                 <Text style={[styles.statNumber, { color: textColor }]}>
                   {likedArticles.size}
                 </Text>
-                <Text style={[styles.statLabel, { color: mutedText }]}>Liked</Text>
+                <Text style={[styles.statLabel, { color: mutedText }]}>{i18n.liked}</Text>
               </View>
               <View style={[styles.statCard, { backgroundColor: cardBg }]}>
                 <Ionicons name="bookmark" size={20} color="#E63329" />
                 <Text style={[styles.statNumber, { color: textColor }]}>
                   {savedArticles.size}
                 </Text>
-                <Text style={[styles.statLabel, { color: mutedText }]}>Saved</Text>
+                <Text style={[styles.statLabel, { color: mutedText }]}>{i18n.saved}</Text>
               </View>
               <View style={[styles.statCard, { backgroundColor: cardBg }]}>
                 <Ionicons name="eye" size={20} color="#E63329" />
                 <Text style={[styles.statNumber, { color: textColor }]}>47</Text>
-                <Text style={[styles.statLabel, { color: mutedText }]}>Read</Text>
+                <Text style={[styles.statLabel, { color: mutedText }]}>{i18n.read}</Text>
               </View>
             </View>
 
             {/* Dark mode toggle */}
             <View style={[styles.section, { borderTopColor: darkMode ? "#333" : "#EEE" }]}>
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Appearance</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>{i18n.appearance}</Text>
               <View style={[styles.settingRow, { backgroundColor: cardBg }]}>
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
                   <Ionicons
@@ -127,7 +143,7 @@ export default function ProfileSheet() {
                     size={22}
                     color={darkMode ? "#FFD700" : "#FF8C00"}
                   />
-                  <Text style={[styles.settingLabel, { color: textColor }]}>Dark Mode</Text>
+                  <Text style={[styles.settingLabel, { color: textColor }]}>{i18n.darkMode}</Text>
                 </View>
                 <Switch
                   value={darkMode}
@@ -138,18 +154,47 @@ export default function ProfileSheet() {
               </View>
             </View>
 
+            {/* Language selector */}
+            <View style={styles.section}>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>{i18n.language}</Text>
+              <View style={{ flexDirection: "row", gap: 8 }}>
+                {languages.map((lang) => (
+                  <Pressable
+                    key={lang}
+                    onPress={() => setLanguage(lang)}
+                    style={[
+                      styles.langButton,
+                      {
+                        backgroundColor: language === lang ? "#E63329" : cardBg,
+                        borderColor: language === lang ? "#E63329" : darkMode ? "#444" : "#E5E5E5",
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.langButtonText,
+                        { color: language === lang ? "#FFF" : textColor },
+                      ]}
+                    >
+                      {languageLabels[lang]}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+
             {/* Interest toggles */}
             <View style={styles.section}>
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Your Interests</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>{i18n.yourInterests}</Text>
               <Text style={[styles.sectionSubtitle, { color: mutedText }]}>
-                Customize your feed by toggling topics
+                {i18n.customizeFeed}
               </Text>
 
-              {Object.entries(interestLabels).map(([key, { label, icon }]) => (
+              {Object.entries(interestIcons).map(([key, icon]) => (
                 <View key={key} style={[styles.settingRow, { backgroundColor: cardBg }]}>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
                     <Ionicons name={icon as any} size={20} color="#E63329" />
-                    <Text style={[styles.settingLabel, { color: textColor }]}>{label}</Text>
+                    <Text style={[styles.settingLabel, { color: textColor }]}>{interestLabelMap[key]}</Text>
                   </View>
                   <Switch
                     value={interests[key as keyof typeof interests]}
@@ -163,7 +208,7 @@ export default function ProfileSheet() {
 
             {/* Menu items */}
             <View style={styles.section}>
-              {["Reading History", "Notifications", "Help & Support", "About"].map((item) => (
+              {[i18n.readingHistory, i18n.notifications, i18n.helpSupport, i18n.about].map((item) => (
                 <Pressable key={item} style={[styles.menuItem, { backgroundColor: cardBg }]}>
                   <Text style={[styles.settingLabel, { color: textColor }]}>{item}</Text>
                   <Ionicons name="chevron-forward" size={18} color={mutedText} />
@@ -179,7 +224,7 @@ export default function ProfileSheet() {
               >
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
                   <Ionicons name="log-out-outline" size={20} color="#E63329" />
-                  <Text style={[styles.settingLabel, { color: "#E63329" }]}>Sign Out</Text>
+                  <Text style={[styles.settingLabel, { color: "#E63329" }]}>{i18n.signOut}</Text>
                 </View>
               </Pressable>
             </View>
@@ -283,5 +328,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 14,
     marginBottom: 8,
+  },
+  langButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    alignItems: "center",
+  },
+  langButtonText: {
+    fontSize: 12,
+    fontFamily: "DMSans_500Medium",
   },
 });

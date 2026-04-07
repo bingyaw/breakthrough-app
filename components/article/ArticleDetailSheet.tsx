@@ -15,6 +15,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import { getArticleById, articles, Article } from "@/data/articles";
 import { useUnsplashImage } from "@/hooks/useUnsplashImage";
 import ShimmerPlaceholder from "@/components/ShimmerPlaceholder";
@@ -31,7 +32,10 @@ export default function ArticleDetailSheet() {
     toggleLike,
     toggleSave,
     generatedArticles,
+    language,
   } = useAppStore();
+
+  const i18n = t(language);
 
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
@@ -215,7 +219,7 @@ export default function ArticleDetailSheet() {
                   <Text style={styles.categoryText}>{article.category}</Text>
                 </View>
                 <Text style={[styles.readTime, { color: mutedText }]}>
-                  {article.readTime} read
+                  {article.readTime} {i18n.readSuffix}
                 </Text>
               </View>
 
@@ -281,7 +285,7 @@ export default function ArticleDetailSheet() {
                     color={isLiked ? "#E63329" : mutedText}
                   />
                   <Text style={{ color: isLiked ? "#E63329" : mutedText, fontFamily: "DMSans_500Medium", fontSize: 13 }}>
-                    {isLiked ? "Liked" : "Like"}
+                    {isLiked ? i18n.likedAction : i18n.like}
                   </Text>
                 </Pressable>
 
@@ -304,7 +308,7 @@ export default function ArticleDetailSheet() {
                     color={isSaved ? "#E63329" : mutedText}
                   />
                   <Text style={{ color: isSaved ? "#E63329" : mutedText, fontFamily: "DMSans_500Medium", fontSize: 13 }}>
-                    {isSaved ? "Saved" : "Save"}
+                    {isSaved ? i18n.savedAction : i18n.save}
                   </Text>
                 </Pressable>
 
@@ -316,7 +320,7 @@ export default function ArticleDetailSheet() {
                   ]}
                 >
                   <Ionicons name="share-outline" size={20} color={mutedText} />
-                  <Text style={{ color: mutedText, fontFamily: "DMSans_500Medium", fontSize: 13 }}>Share</Text>
+                  <Text style={{ color: mutedText, fontFamily: "DMSans_500Medium", fontSize: 13 }}>{i18n.share}</Text>
                 </Pressable>
               </View>
 
@@ -341,7 +345,7 @@ export default function ArticleDetailSheet() {
               {relatedArticles.length > 0 && (
                 <View style={{ marginTop: 24 }}>
                   <Text style={[styles.relatedTitle, { color: textColor }]}>
-                    Related Articles
+                    {i18n.relatedArticles}
                   </Text>
                   {relatedArticles.map((related) =>
                     related ? (

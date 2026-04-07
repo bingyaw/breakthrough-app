@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Pressable, StyleSheet, ActivityIndicator } from
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import StoryBubbles from "@/components/feed/StoryBubbles";
 import CategoryTabs from "@/components/feed/CategoryTabs";
 import MasonryFeed from "@/components/feed/MasonryFeed";
@@ -12,8 +13,9 @@ import ProfileSheet from "@/components/profile/ProfileSheet";
 import SearchModal from "@/components/SearchModal";
 
 export default function HomeScreen() {
-  const { darkMode, setProfileVisible, activeCategory, clearCategoryCache, feedLoading } =
+  const { darkMode, setProfileVisible, activeCategory, clearCategoryCache, feedLoading, language } =
     useAppStore();
+  const i18n = t(language);
   const insets = useSafeAreaInsets();
   const [searchVisible, setSearchVisible] = useState(false);
 
@@ -31,7 +33,7 @@ export default function HomeScreen() {
         <View>
           <Text style={[styles.logo, { color: "#E63329" }]}>Spark</Text>
           <Text style={[styles.tagline, { color: darkMode ? "#888" : "#999" }]}>
-            Ignite your curiosity
+            {i18n.tagline}
           </Text>
         </View>
         <View style={styles.headerActions}>

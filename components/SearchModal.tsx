@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import { articles as staticArticles, Article } from "@/data/articles";
 
 interface Props {
@@ -21,7 +22,8 @@ interface Props {
 }
 
 export default function SearchModal({ visible, onClose }: Props) {
-  const { darkMode, generatedArticles, setSelectedArticle } = useAppStore();
+  const { darkMode, generatedArticles, setSelectedArticle, language } = useAppStore();
+  const i18n = t(language);
   const insets = useSafeAreaInsets();
   const inputRef = useRef<TextInput>(null);
   const [query, setQuery] = useState("");
@@ -118,7 +120,7 @@ export default function SearchModal({ visible, onClose }: Props) {
               ref={inputRef}
               value={query}
               onChangeText={setQuery}
-              placeholder="Search articles, topics, tags…"
+              placeholder={i18n.searchArticlesPlaceholder}
               placeholderTextColor={subtextColor}
               style={[styles.input, { color: textColor }]}
               autoCorrect={false}
@@ -131,7 +133,7 @@ export default function SearchModal({ visible, onClose }: Props) {
             )}
           </View>
           <Pressable onPress={onClose} hitSlop={8}>
-            <Text style={[styles.cancelText, { color: "#E63329" }]}>Cancel</Text>
+            <Text style={[styles.cancelText, { color: "#E63329" }]}>{i18n.cancel}</Text>
           </Pressable>
         </View>
 
@@ -140,14 +142,14 @@ export default function SearchModal({ visible, onClose }: Props) {
           <View style={styles.emptyState}>
             <Ionicons name="search-outline" size={48} color={subtextColor} />
             <Text style={[styles.emptyText, { color: subtextColor }]}>
-              Search by title, category, or tags
+              {i18n.searchByHint}
             </Text>
           </View>
         ) : results.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="alert-circle-outline" size={48} color={subtextColor} />
             <Text style={[styles.emptyText, { color: subtextColor }]}>
-              No results for "{query}"
+              {i18n.noResultsFor} "{query}"
             </Text>
           </View>
         ) : (

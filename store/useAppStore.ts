@@ -6,6 +6,7 @@ import {
   addSaveToDb,
   removeSaveFromDb,
 } from "@/lib/savedArticles";
+import { Language, getDeviceLanguage } from "@/lib/i18n";
 
 export type Category = "For You" | "Founders" | "Tech" | "Science" | "Space";
 
@@ -26,6 +27,9 @@ interface AppState {
 
   darkMode: boolean;
   toggleDarkMode: () => void;
+
+  language: Language;
+  setLanguage: (lang: Language) => void;
 
   activeCategory: Category;
   setActiveCategory: (cat: Category) => void;
@@ -70,6 +74,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   darkMode: false,
   toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
+
+  language: getDeviceLanguage(),
+  setLanguage: (lang) => set({ language: lang }),
 
   activeCategory: "For You",
   setActiveCategory: (cat) => set({ activeCategory: cat }),

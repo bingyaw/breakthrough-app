@@ -11,20 +11,22 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import { articles } from "@/data/articles";
 import ArticleDetailSheet from "@/components/article/ArticleDetailSheet";
 
-const trendingTopics = [
-  { label: "AI Revolution", emoji: "🤖", count: "2.4K posts" },
-  { label: "Mars Mission", emoji: "🚀", count: "1.8K posts" },
-  { label: "Gene Editing", emoji: "🧬", count: "1.2K posts" },
-  { label: "Startup Funding", emoji: "💰", count: "956 posts" },
-  { label: "Quantum Computing", emoji: "⚛️", count: "843 posts" },
-  { label: "5G Networks", emoji: "📡", count: "721 posts" },
+const trendingTopicsData = [
+  { key: "aiRevolution" as const, emoji: "🤖", count: "2.4K" },
+  { key: "marsMission" as const, emoji: "🚀", count: "1.8K" },
+  { key: "geneEditing" as const, emoji: "🧬", count: "1.2K" },
+  { key: "startupFunding" as const, emoji: "💰", count: "956" },
+  { key: "quantumComputing" as const, emoji: "⚛️", count: "843" },
+  { key: "fiveGNetworks" as const, emoji: "📡", count: "721" },
 ];
 
 export default function ExploreScreen() {
-  const { darkMode, setSelectedArticle } = useAppStore();
+  const { darkMode, setSelectedArticle, language } = useAppStore();
+  const i18n = t(language);
   const insets = useSafeAreaInsets();
   const [search, setSearch] = useState("");
 
@@ -45,14 +47,14 @@ export default function ExploreScreen() {
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <Text style={[styles.title, { color: textColor }]}>Discover</Text>
+        <Text style={[styles.title, { color: textColor }]}>{i18n.discover}</Text>
       </View>
 
       {/* Search bar */}
       <View style={[styles.searchBar, { backgroundColor: inputBg }]}>
         <Ionicons name="search" size={18} color={mutedText} />
         <TextInput
-          placeholder="Search stories, topics, founders..."
+          placeholder={i18n.searchStoriesPlaceholder}
           placeholderTextColor={mutedText}
           value={search}
           onChangeText={setSearch}
@@ -63,16 +65,16 @@ export default function ExploreScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Trending Topics */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Trending Topics</Text>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>{i18n.trendingTopics}</Text>
           <View style={styles.topicsGrid}>
-            {trendingTopics.map((topic) => (
+            {trendingTopicsData.map((topic) => (
               <Pressable
-                key={topic.label}
+                key={topic.key}
                 style={[styles.topicCard, { backgroundColor: cardBg }]}
               >
                 <Text style={styles.topicEmoji}>{topic.emoji}</Text>
-                <Text style={[styles.topicLabel, { color: textColor }]}>{topic.label}</Text>
-                <Text style={[styles.topicCount, { color: mutedText }]}>{topic.count}</Text>
+                <Text style={[styles.topicLabel, { color: textColor }]}>{i18n[topic.key]}</Text>
+                <Text style={[styles.topicCount, { color: mutedText }]}>{topic.count} {i18n.posts}</Text>
               </Pressable>
             ))}
           </View>
@@ -81,7 +83,7 @@ export default function ExploreScreen() {
         {/* Top Stories */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>
-            {search ? "Search Results" : "Top Stories"}
+            {search ? i18n.searchResults : i18n.topStories}
           </Text>
           {filteredArticles.map((article) => (
             <Pressable

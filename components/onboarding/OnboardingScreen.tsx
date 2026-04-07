@@ -11,6 +11,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,36 +23,24 @@ interface Slide {
   gradientColors: [string, string, string];
 }
 
-const slides: Slide[] = [
-  {
-    id: "1",
-    title: "Discover What's Next",
-    subtitle:
-      "AI-curated stories from science, tech and founders",
-    icon: "flash",
-    gradientColors: ["#E63329", "#B8281F", "#8C1D17"],
-  },
-  {
-    id: "2",
-    title: "Personalized For You",
-    subtitle:
-      "Toggle your interests and get stories tailored to what you care about",
-    icon: "person",
-    gradientColors: ["#FF4D44", "#E63329", "#B8281F"],
-  },
-  {
-    id: "3",
-    title: "Save & Share",
-    subtitle: "Save inspiring stories and share them with your network",
-    icon: "bookmark",
-    gradientColors: ["#E63329", "#C92E25", "#991F18"],
-  },
+const slideConfigs: Omit<Slide, "title" | "subtitle">[] = [
+  { id: "1", icon: "flash", gradientColors: ["#E63329", "#B8281F", "#8C1D17"] },
+  { id: "2", icon: "person", gradientColors: ["#FF4D44", "#E63329", "#B8281F"] },
+  { id: "3", icon: "bookmark", gradientColors: ["#E63329", "#C92E25", "#991F18"] },
 ];
 
 export default function OnboardingScreen() {
   const setHasSeenOnboarding = useAppStore((s) => s.setHasSeenOnboarding);
+  const language = useAppStore((s) => s.language);
+  const i18n = t(language);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+
+  const slides: Slide[] = slideConfigs.map((config, idx) => ({
+    ...config,
+    title: [i18n.onboardingTitle1, i18n.onboardingTitle2, i18n.onboardingTitle3][idx],
+    subtitle: [i18n.onboardingSubtitle1, i18n.onboardingSubtitle2, i18n.onboardingSubtitle3][idx],
+  }));
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -107,7 +96,7 @@ export default function OnboardingScreen() {
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>
-            {index === slides.length - 1 ? "Get Started" : "Next"}
+            {index === slides.length - 1 ? i18n.getStarted : i18n.next}
           </Text>
         </TouchableOpacity>
       </View>

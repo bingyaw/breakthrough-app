@@ -9,19 +9,22 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAppStore } from "@/store/useAppStore";
+import { t } from "@/lib/i18n";
 import { founderSpotlights } from "@/data/articles";
 
 export default function FounderSpotlightSection() {
   const darkMode = useAppStore((s) => s.darkMode);
+  const language = useAppStore((s) => s.language);
+  const i18n = t(language);
 
   return (
     <View style={{ marginBottom: 16 }}>
       <View style={styles.header}>
         <Text style={[styles.sectionTitle, { color: darkMode ? "#F5F5F5" : "#1A1A1A" }]}>
-          🔥 Founder Spotlight
+          {i18n.founderSpotlight}
         </Text>
         <Pressable>
-          <Text style={styles.seeAll}>See All</Text>
+          <Text style={styles.seeAll}>{i18n.seeAll}</Text>
         </Pressable>
       </View>
 
