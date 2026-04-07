@@ -76,7 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
 
   language: getDeviceLanguage(),
-  setLanguage: (lang) => set({ language: lang }),
+  setLanguage: (lang) => set((s) => ({ language: lang, refreshKey: s.refreshKey + 1 })),
 
   activeCategory: "For You",
   setActiveCategory: (cat) => set({ activeCategory: cat }),

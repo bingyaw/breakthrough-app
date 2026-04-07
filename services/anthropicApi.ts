@@ -12,7 +12,7 @@ function getApiKey(): string {
 
 const SYSTEM_PROMPT = `You are a content generator for "Spark", an inspiring news app about innovation. Generate exactly 6 unique, compelling articles. Each article must feel authentic — like real journalism about real breakthroughs.
 
-Respond ONLY with a valid JSON array. No markdown, no code fences, no explanation. Each object must have:
+Respond ONLY with a valid JSON array, no other text before or after. No markdown, no code fences, no explanation. Each object must have:
 - "title": catchy headline (8-14 words)
 - "subtitle": compelling subheading (10-18 words)
 - "snippet": exactly 2 engaging sentences summarizing the article
@@ -52,8 +52,60 @@ function buildUserPrompt(category: string, interests?: UserInterests): string {
   return `Generate 6 inspiring articles in the "${category}" category. Each should cover a different topic within ${category}. Make them feel fresh, current, and inspiring — covering the latest innovations, discoveries, and stories.`;
 }
 
+function cleanJsonString(raw: string): string {
+  // Remove BOM characters
+  let cleaned = raw.replace(/\uFEFF/g, "");
+  // Replace smart/curly quotes with regular quotes
+  cleaned = cleaned.replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, '"');
+  cleaned = cleaned.replace(/[\u2018\u2019\u201A\u201B\u2032\u2035]/g, "'");
+  return cleaned;
+}
+
+function parseArticles(content: string): any[] {
+  // Log raw content for debugging
+  console.error("[parseArticles] Raw content (first 500 chars):", content.slice(0, 500));
+
+  // Clean the content first
+  const cleaned = cleanJsonString(content);
+
+  // Try direct parse first
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    // Fall through to extraction
+  }
+
+  // Extract JSON array by finding the first [ and last ]
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start !== -1 && end > start) {
+    const jsonStr = cleaned.slice(start, end + 1);
+    try {
+      return JSON.parse(jsonStr);
+    } catch {
+      // Fall through to regex approach
+    }
+  }
+
+  // Regex approach: find a JSON array pattern
+  const arrayMatch = cleaned.match(/\[[\s\S]*\]/);
+  if (arrayMatch) {
+    try {
+      return JSON.parse(arrayMatch[0]);
+    } catch {
+      // Fall through to error
+    }
+  }
+
+  console.error("[parseArticles] All parse attempts failed. Cleaned content:", cleaned.slice(0, 500));
+  throw new Error("Failed to parse article JSON from API response");
+}
+
 export async function generateArticles(category: string, interests?: UserInterests): Promise<Article[]> {
   const apiKey = getApiKey();
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   const response = await fetch(API_URL, {
     method: "POST",
@@ -74,7 +126,10 @@ export async function generateArticles(category: string, interests?: UserInteres
         },
       ],
     }),
+    signal: controller.signal,
   });
+
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const errorBody = await response.text();
@@ -88,28 +143,46 @@ export async function generateArticles(category: string, interests?: UserInteres
     throw new Error("No content in Anthropic API response");
   }
 
-  const rawArticles = JSON.parse(content);
+  const rawArticles = parseArticles(content);
 
   if (!Array.isArray(rawArticles) || rawArticles.length === 0) {
     throw new Error("Invalid article array from API");
   }
 
-  return rawArticles.map((raw: any, i: number) => ({
-    id: `gen-${category}-${Date.now()}-${i}`,
-    title: raw.title || "Untitled",
-    subtitle: raw.subtitle || raw.snippet || "",
-    category: raw.category || category,
-    imageUrl: "",
-    author: raw.author || "Unknown Author",
-    authorAvatar: raw.authorAvatar || "",
-    likes: Math.floor(Math.random() * 3000) + 500,
-    readTime: raw.readTime || "5 min",
-    isHot: raw.isHot || false,
-    isTrending: raw.isTrending || false,
-    badge: raw.badge || category,
-    pullQuote: raw.pullQuote || "",
-    body: raw.body || raw.snippet || "",
-    tags: raw.tags || [category],
-    relatedIds: [],
-  }));
+  const articles: Article[] = [];
+  for (let i = 0; i < rawArticles.length; i++) {
+    try {
+      const raw = rawArticles[i];
+      if (!raw || typeof raw !== "object" || !raw.title) {
+        console.warn(`Skipping malformed article at index ${i}`);
+        continue;
+      }
+      articles.push({
+        id: `gen-${category}-${Date.now()}-${i}`,
+        title: raw.title,
+        subtitle: raw.subtitle || raw.snippet || "",
+        category: raw.category || category,
+        imageUrl: "",
+        author: raw.author || "Unknown Author",
+        authorAvatar: raw.authorAvatar || "",
+        likes: Math.floor(Math.random() * 3000) + 500,
+        readTime: raw.readTime || "5 min",
+        isHot: raw.isHot || false,
+        isTrending: raw.isTrending || false,
+        badge: raw.badge || category,
+        pullQuote: raw.pullQuote || "",
+        body: raw.body || raw.snippet || "",
+        tags: raw.tags || [category],
+        relatedIds: [],
+      });
+    } catch (err) {
+      console.warn(`Skipping article at index ${i} due to error:`, err);
+    }
+  }
+
+  if (articles.length === 0) {
+    throw new Error("All articles failed to parse");
+  }
+
+  return articles;
 }
