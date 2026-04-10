@@ -36,12 +36,12 @@ export default function CategoryTabs() {
                   ? "#E63329"
                   : darkMode
                   ? "#333"
-                  : "#FFFFFF",
+                  : "#FFF",
                 borderColor: isActive
                   ? "#E63329"
                   : darkMode
                   ? "#444"
-                  : "#E5E5E5",
+                  : "#FFF",
               },
             ]}
           >

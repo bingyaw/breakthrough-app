@@ -250,7 +250,7 @@ export default function ArticleDetailSheet() {
                 <View
                   style={[
                     styles.pullQuote,
-                    { borderLeftColor: "#E63329", backgroundColor: darkMode ? "#222" : "#FFF5F5" },
+                    { borderLeftColor: "#E63329", backgroundColor: darkMode ? "#222" : "#FFF8E1" },
                   ]}
                 >
                   <Text style={[styles.pullQuoteText, { color: textColor }]}>
@@ -272,7 +272,7 @@ export default function ArticleDetailSheet() {
                     styles.actionButton,
                     {
                       backgroundColor: isLiked
-                        ? "#FEE2E2"
+                        ? "#FFF8E1"
                         : darkMode
                         ? "#333"
                         : "#F5F5F5",
@@ -295,7 +295,7 @@ export default function ArticleDetailSheet() {
                     styles.actionButton,
                     {
                       backgroundColor: isSaved
-                        ? "#FEE2E2"
+                        ? "#FFF8E1"
                         : darkMode
                         ? "#333"
                         : "#F5F5F5",

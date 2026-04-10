@@ -141,7 +141,7 @@ export default function ProfileSheet() {
                   <Ionicons
                     name={darkMode ? "moon" : "sunny"}
                     size={22}
-                    color={darkMode ? "#FFD700" : "#FF8C00"}
+                    color={darkMode ? "#E63329" : "#FF8C00"}
                   />
                   <Text style={[styles.settingLabel, { color: textColor }]}>{i18n.darkMode}</Text>
                 </View>

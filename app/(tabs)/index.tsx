@@ -31,7 +31,7 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View>
-          <Text style={[styles.logo, { color: "#E63329" }]}>Spark</Text>
+          <Text style={[styles.logo, { color: darkMode ? "#F5F5F5" : "#1A1A1A" }]}>Spark</Text>
           <Text style={[styles.tagline, { color: darkMode ? "#888" : "#999" }]}>
             {i18n.tagline}
           </Text>
@@ -44,7 +44,7 @@ export default function HomeScreen() {
             {feedLoading ? (
               <ActivityIndicator size="small" color="#E63329" />
             ) : (
-              <Ionicons name="refresh" size={20} color="#E63329" />
+              <Ionicons name="refresh" size={20} color={textColor} />
             )}
           </Pressable>
           <Pressable
