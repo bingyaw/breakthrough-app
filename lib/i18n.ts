@@ -108,6 +108,12 @@ type TranslationKeys = {
   discoverTab: string;
   savedTab: string;
 
+  // Story bubbles
+  bubbleAI: string;
+  bubbleStartups: string;
+  bubbleCrypto: string;
+  bubbleClimate: string;
+
   // Posts suffix
   posts: string;
 };
@@ -215,6 +221,12 @@ const translations: Record<Language, TranslationKeys> = {
     discoverTab: "Discover",
     savedTab: "Saved",
 
+    // Story bubbles
+    bubbleAI: "AI",
+    bubbleStartups: "Startups",
+    bubbleCrypto: "Crypto",
+    bubbleClimate: "Climate",
+
     // Posts suffix
     posts: "posts",
   },
@@ -318,6 +330,12 @@ const translations: Record<Language, TranslationKeys> = {
     home: "\u9996\u9875",
     discoverTab: "\u53D1\u73B0",
     savedTab: "\u5DF2\u4FDD\u5B58",
+
+    // Story bubbles
+    bubbleAI: "人工智能",
+    bubbleStartups: "创业",
+    bubbleCrypto: "加密货币",
+    bubbleClimate: "气候",
 
     // Posts suffix
     posts: "\u7BC7\u5E16\u5B50",
@@ -426,6 +444,12 @@ const translations: Record<Language, TranslationKeys> = {
     home: "Utama",
     discoverTab: "Terokai",
     savedTab: "Disimpan",
+
+    // Story bubbles
+    bubbleAI: "AI",
+    bubbleStartups: "Rintisan",
+    bubbleCrypto: "Kripto",
+    bubbleClimate: "Iklim",
 
     // Posts suffix
     posts: "siaran",
