@@ -84,7 +84,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   language: getDeviceLanguage(),
   setLanguage: (lang) => {
-    AsyncStorage.setItem(LANGUAGE_KEY, lang);
+    try { AsyncStorage.setItem(LANGUAGE_KEY, lang); } catch {}
     set((s) => ({ language: lang, refreshKey: s.refreshKey + 1 }));
   },
 
@@ -146,26 +146,28 @@ export const useAppStore = create<AppState>((set, get) => ({
   // Onboarding
   hasSeenOnboarding: false,
   setHasSeenOnboarding: (v) => {
-    AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(v));
+    try { AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(v)); } catch {}
     set({ hasSeenOnboarding: v });
   },
 
   // Persistence
   loadPersistedState: async () => {
-    const [savedLang, savedOnboarding] = await Promise.all([
-      AsyncStorage.getItem(LANGUAGE_KEY),
-      AsyncStorage.getItem(ONBOARDING_KEY),
-    ]);
-    const updates: Partial<AppState> = {};
-    if (savedLang && (savedLang === "en" || savedLang === "zh" || savedLang === "ms")) {
-      updates.language = savedLang as Language;
-    }
-    if (savedOnboarding !== null) {
-      updates.hasSeenOnboarding = JSON.parse(savedOnboarding);
-    }
-    if (Object.keys(updates).length > 0) {
-      set(updates);
-    }
+    try {
+      const [savedLang, savedOnboarding] = await Promise.all([
+        AsyncStorage.getItem(LANGUAGE_KEY),
+        AsyncStorage.getItem(ONBOARDING_KEY),
+      ]);
+      const updates: Partial<AppState> = {};
+      if (savedLang && (savedLang === "en" || savedLang === "zh" || savedLang === "ms")) {
+        updates.language = savedLang as Language;
+      }
+      if (savedOnboarding !== null) {
+        updates.hasSeenOnboarding = JSON.parse(savedOnboarding);
+      }
+      if (Object.keys(updates).length > 0) {
+        set(updates);
+      }
+    } catch {}
   },
 
   // AI-generated feed
