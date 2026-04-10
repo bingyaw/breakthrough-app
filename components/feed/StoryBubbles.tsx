@@ -20,12 +20,12 @@ interface TrendingTopic {
 }
 
 const TOPICS: TrendingTopic[] = [
-  { id: "1", labelKey: "bubbleAI", query: "artificial intelligence", category: "For You" },
-  { id: "2", labelKey: "space", query: "space exploration", category: "Space" },
-  { id: "3", labelKey: "science", query: "science laboratory", category: "Science" },
-  { id: "4", labelKey: "bubbleStartups", query: "startup technology", category: "For You" },
-  { id: "5", labelKey: "bubbleCrypto", query: "cryptocurrency bitcoin", category: null },
-  { id: "6", labelKey: "bubbleClimate", query: "climate change nature", category: null },
+  { id: "1", labelKey: "bubbleAI", query: "robot machine learning", category: "For You" },
+  { id: "2", labelKey: "space", query: "galaxy nasa stars", category: "Space" },
+  { id: "3", labelKey: "science", query: "dna research microscope", category: "Science" },
+  { id: "4", labelKey: "bubbleStartups", query: "modern office coworking", category: "For You" },
+  { id: "5", labelKey: "bubbleCrypto", query: "bitcoin blockchain digital", category: null },
+  { id: "6", labelKey: "bubbleClimate", query: "green earth environment", category: null },
 ];
 
 function TopicBubble({
