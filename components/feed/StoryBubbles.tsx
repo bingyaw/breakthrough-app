@@ -1,25 +1,69 @@
 import React from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useAppStore, Category } from "@/store/useAppStore";
+import { useUnsplashImage } from "@/hooks/useUnsplashImage";
 import { t } from "@/lib/i18n";
-
-const COLORS = ["#FFE4E1", "#E1F0FF", "#E8F5E9", "#FFF8E1", "#F3E5F5", "#E0F7FA"];
 
 interface TrendingTopic {
   id: string;
   labelKey: string;
-  emoji: string;
+  query: string;
   category: Category | null;
 }
 
 const TOPICS: TrendingTopic[] = [
-  { id: "1", labelKey: "bubbleAI", emoji: "\u{1F916}", category: "For You" },
-  { id: "2", labelKey: "space", emoji: "\u{1F680}", category: "Space" },
-  { id: "3", labelKey: "science", emoji: "\u{1F9EC}", category: "Science" },
-  { id: "4", labelKey: "bubbleStartups", emoji: "\u{1F4A1}", category: "For You" },
-  { id: "5", labelKey: "bubbleCrypto", emoji: "\u{20BF}", category: null },
-  { id: "6", labelKey: "bubbleClimate", emoji: "\u{1F30D}", category: null },
+  { id: "1", labelKey: "bubbleAI", query: "artificial intelligence", category: "For You" },
+  { id: "2", labelKey: "space", query: "space exploration", category: "Space" },
+  { id: "3", labelKey: "science", query: "science laboratory", category: "Science" },
+  { id: "4", labelKey: "bubbleStartups", query: "startup technology", category: "For You" },
+  { id: "5", labelKey: "bubbleCrypto", query: "cryptocurrency bitcoin", category: null },
+  { id: "6", labelKey: "bubbleClimate", query: "climate change nature", category: null },
 ];
+
+function TopicBubble({
+  topic,
+  darkMode,
+  label,
+  onPress,
+}: {
+  topic: TrendingTopic;
+  darkMode: boolean;
+  label: string;
+  onPress: () => void;
+}) {
+  const { imageUrl, loading } = useUnsplashImage(topic.query, "");
+
+  return (
+    <Pressable style={{ alignItems: "center", width: 68 }} onPress={onPress}>
+      <View
+        style={[
+          styles.bubble,
+          { shadowColor: darkMode ? "#000" : "#999" },
+        ]}
+      >
+        {loading || !imageUrl ? (
+          <ActivityIndicator size="small" color="#999" />
+        ) : (
+          <Image source={{ uri: imageUrl }} style={styles.image} />
+        )}
+      </View>
+      <Text
+        numberOfLines={1}
+        style={[styles.label, { color: darkMode ? "#CCC" : "#555" }]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
 
 export default function StoryBubbles() {
   const darkMode = useAppStore((s) => s.darkMode);
@@ -34,41 +78,20 @@ export default function StoryBubbles() {
       contentContainerStyle={{ paddingHorizontal: 16, gap: 16 }}
       style={{ marginBottom: 12 }}
     >
-      {TOPICS.map((topic, index) => {
+      {TOPICS.map((topic) => {
         const label = (strings as any)[topic.labelKey] ?? topic.labelKey;
-        const bgColor = COLORS[index % COLORS.length];
-
         return (
-          <Pressable
+          <TopicBubble
             key={topic.id}
-            style={{ alignItems: "center", width: 68 }}
+            topic={topic}
+            darkMode={darkMode}
+            label={label}
             onPress={() => {
               if (topic.category) {
                 setActiveCategory(topic.category);
               }
             }}
-          >
-            <View
-              style={[
-                styles.bubble,
-                {
-                  backgroundColor: bgColor,
-                  shadowColor: darkMode ? "#000" : "#999",
-                },
-              ]}
-            >
-              <Text style={styles.emoji}>{topic.emoji}</Text>
-            </View>
-            <Text
-              numberOfLines={1}
-              style={[
-                styles.label,
-                { color: darkMode ? "#CCC" : "#555" },
-              ]}
-            >
-              {label}
-            </Text>
-          </Pressable>
+          />
         );
       })}
     </ScrollView>
@@ -82,13 +105,17 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
+    backgroundColor: "#E5E5E5",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
   },
-  emoji: {
-    fontSize: 28,
+  image: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
   },
   label: {
     fontSize: 11,

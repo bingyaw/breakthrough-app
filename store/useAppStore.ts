@@ -188,4 +188,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 }));
 
 // Load persisted state on app startup
-useAppStore.getState().loadPersistedState();
+useAppStore.getState().loadPersistedState().catch(() => {
+  // Silently handle AsyncStorage errors on startup
+});
