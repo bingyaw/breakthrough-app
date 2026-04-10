@@ -39,10 +39,17 @@ export default function MasonryFeed() {
     setFeedError(null);
     try {
       const userInterests = activeCategory === "For You" ? interests : undefined;
-      const articles = await generateArticles(activeCategory, userInterests);
+      let articles: Awaited<ReturnType<typeof generateArticles>>;
+      try {
+        articles = await generateArticles(activeCategory, userInterests);
+      } catch (firstErr) {
+        console.warn("First attempt failed, retrying in 2s:", (firstErr as Error).message);
+        await new Promise((r) => setTimeout(r, 2000));
+        articles = await generateArticles(activeCategory, userInterests);
+      }
       setGeneratedArticles(activeCategory, articles);
     } catch (err: any) {
-      console.warn("Failed to generate articles, falling back to static:", err.message);
+      console.warn("Failed to generate articles after retry, falling back to static:", err.message);
       setFeedError(err.message);
     } finally {
       setFeedLoading(false);

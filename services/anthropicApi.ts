@@ -105,7 +105,7 @@ export async function generateArticles(category: string, interests?: UserInteres
   const apiKey = getApiKey();
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   const response = await fetch(API_URL, {
     method: "POST",

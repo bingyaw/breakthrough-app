@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Article } from "@/data/articles";
 import { Session, User } from "@supabase/supabase-js";
 import {
@@ -7,6 +8,9 @@ import {
   removeSaveFromDb,
 } from "@/lib/savedArticles";
 import { Language, getDeviceLanguage } from "@/lib/i18n";
+
+const LANGUAGE_KEY = "spark_language";
+const ONBOARDING_KEY = "spark_onboarding_seen";
 
 export type Category = "For You" | "Founders" | "Tech" | "Science" | "Space";
 
@@ -54,6 +58,9 @@ interface AppState {
   hasSeenOnboarding: boolean;
   setHasSeenOnboarding: (v: boolean) => void;
 
+  // Persistence
+  loadPersistedState: () => Promise<void>;
+
   // AI-generated feed
   generatedArticles: Record<string, Article[]>;
   feedLoading: boolean;
@@ -76,7 +83,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   toggleDarkMode: () => set((s) => ({ darkMode: !s.darkMode })),
 
   language: getDeviceLanguage(),
-  setLanguage: (lang) => set((s) => ({ language: lang, refreshKey: s.refreshKey + 1 })),
+  setLanguage: (lang) => {
+    AsyncStorage.setItem(LANGUAGE_KEY, lang);
+    set((s) => ({ language: lang, refreshKey: s.refreshKey + 1 }));
+  },
 
   activeCategory: "For You",
   setActiveCategory: (cat) => set({ activeCategory: cat }),
@@ -135,7 +145,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Onboarding
   hasSeenOnboarding: false,
-  setHasSeenOnboarding: (v) => set({ hasSeenOnboarding: v }),
+  setHasSeenOnboarding: (v) => {
+    AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(v));
+    set({ hasSeenOnboarding: v });
+  },
+
+  // Persistence
+  loadPersistedState: async () => {
+    const [savedLang, savedOnboarding] = await Promise.all([
+      AsyncStorage.getItem(LANGUAGE_KEY),
+      AsyncStorage.getItem(ONBOARDING_KEY),
+    ]);
+    const updates: Partial<AppState> = {};
+    if (savedLang && (savedLang === "en" || savedLang === "zh" || savedLang === "ms")) {
+      updates.language = savedLang as Language;
+    }
+    if (savedOnboarding !== null) {
+      updates.hasSeenOnboarding = JSON.parse(savedOnboarding);
+    }
+    if (Object.keys(updates).length > 0) {
+      set(updates);
+    }
+  },
 
   // AI-generated feed
   generatedArticles: {},
@@ -155,3 +186,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     }),
   refreshKey: 0,
 }));
+
+// Load persisted state on app startup
+useAppStore.getState().loadPersistedState();
